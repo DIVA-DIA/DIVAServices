@@ -362,8 +362,9 @@ export class WorkflowManager {
                 let uri = new url.URL(step.method);
                 //TODO fix the replace part
                 let service = await ServicesInfoHelper.getInfoByPath(uri.pathname.replace(nconf.get('server:rootUrl'), ""));
-                this.outputs = IoHelper.readFile(nconf.get('paths:jsonPath') + service.path + path.sep + 'info.json').output;
-                this.inputs = IoHelper.readFile(nconf.get('paths:jsonPath') + service.path + path.sep + 'info.json').input;
+                let infoFile = IoHelper.readFile(nconf.get('paths:jsonPath') + service.path + path.sep + 'info.json');
+                this.outputs = infoFile.output;
+                this.inputs = infoFile.input;
                 //process inputs
                 for (let infoSpec of this.inputs) {
                     let dataValue = _.find(step.stepDefinition.inputs.data, function (o: any) { return Object.keys(o)[0] === infoSpec[Object.keys(infoSpec)[0]].name; });
