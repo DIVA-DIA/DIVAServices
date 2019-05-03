@@ -340,12 +340,56 @@ export class WorkflowManager {
             switch (step.type) {
                 case 'regular':
                     return await this.processRegular(wfStep);
+                case "builtIn":
+                    switch (step.method) {
+                        case 'picker':
+                            return await this.processPicker(wfStep);
+                        // case 'foreach':
+
+                    }
+                // ..builtIn/picker/picker.cwl
+                // return await this.processPicker(wfStep):
+                // add Input / Outputs to cwlWorkflowManager (hardcoded)
+                // create YAML File
                 default:
                     break;
             }
         } catch (error) {
             throw error;
         }
+    }
+
+    public processPicker(step: WorkflowStep): Promise<void> {
+        return new Promise<void>(async (resolve, reject) => {
+            let infoSpecification = IoHelper.readFile("/code/src/workflows/builtInFunctions/cwl/picker_info.json");
+            let serviceSpecification = IoHelper.readFile("/code/src/workflows/builtInFunctions/cwl/picker_service.json")
+            for (let infoSpec of infoSpecification.input) {
+                switch (Object.keys(infoSpec)[0]) {
+                    case 'folder':
+                        // dataValue should be '$lineSegmentation/$textLines'
+                        let dataValue = step.stepDefinition.inputs.data[0].input;
+                        var serviceSpec = _.find(serviceSpecification.parameters, function (o: any) { return Object.keys(o)[0] === infoSpec[Object.keys(infoSpec)[0]].name; });
+                        await this.addValue(step, step.name + '_inputFolder', infoSpec, serviceSpec, 'Directory', dataValue, null);
+                        break;
+                    case 'text':
+                        //paramValue should be the regexp
+                        let paramValue = step.stepDefinition.inputs.parameters.regex;
+                        var serviceSpec = _.find(serviceSpecification.parameters, function (o: any) { return Object.keys(o)[0] === infoSpec[Object.keys(infoSpec)[0]].name; });
+                        // add the two input values (collection and regex)
+                        await this.addValue(step, step.name + '_regex', infoSpec, serviceSpec, 'string', null, paramValue);
+                        break;
+                }
+
+            }
+
+            // create the output
+            let output = infoSpecification.output[0];
+            this.cwlWorkflowManager.addOutput(step, 'File', 'outputFile', output);
+
+            // copy-the workflow file
+            await IoHelper.copyFile(path.resolve('/code/src/workflows/builtInFunctions/cwl/picker.cwl'), this.workflowFolder + path.sep + step.name + '.cwl');
+            resolve();
+        });
     }
 
     /**
@@ -472,11 +516,9 @@ export class WorkflowManager {
                     case 'MethodNotFound':
                         reject(new DivaError("Could not create workflow, because method: " + step.method + " does not exist.", 500, "WorkflowCreationError"));
                         return;
-                        break;
                     default:
                         reject(error);
                         return;
-                        break;
                 }
             }
         });
@@ -498,7 +540,13 @@ export class WorkflowManager {
     private async addValue(step: WorkflowStep, name: string, infoSpec: any, serviceSpec: any, type: string, dataValue: any, paramValue: any) {
         try {
             if (!isNullOrUndefined(dataValue)) {
-                let reference = dataValue[infoSpec[Object.keys(infoSpec)[0]].name];
+                //if picker don't create a new reference, just pass on the dataValue
+                let reference = '';
+                if (typeof (dataValue) === 'string' && dataValue.startsWith('$')) {
+                    reference = dataValue;
+                } else {
+                    reference = dataValue[infoSpec[Object.keys(infoSpec)[0]].name];
+                }
                 await this.cwlWorkflowManager.addInput(step, type, name, infoSpec, serviceSpec, this.warnings, reference);
             } else if (!isNullOrUndefined(paramValue)) {
                 await this.cwlWorkflowManager.addInput(step, type, name, infoSpec, serviceSpec, this.warnings, paramValue);
