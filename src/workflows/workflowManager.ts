@@ -411,7 +411,15 @@ export class WorkflowManager {
                 this.inputs = infoFile.input;
                 //process inputs
                 for (let infoSpec of this.inputs) {
-                    let dataValue = _.find(step.stepDefinition.inputs.data, function (o: any) { return Object.keys(o)[0] === infoSpec[Object.keys(infoSpec)[0]].name; });
+                    let dataValue = _.find(step.stepDefinition.inputs.data, function (o: any) {
+                        let found = false;
+                        for (let key in Object.keys(o)) {
+                            if(Object.keys(o)[key] === infoSpec[Object.keys(infoSpec)[0]].name){
+                                found = true;
+                            }
+                        }
+                        return found;
+                    });
                     let paramValue = step.stepDefinition.inputs.parameters[infoSpec[Object.keys(infoSpec)[0]].name];
                     try {
                         switch (Object.keys(infoSpec)[0]) {
