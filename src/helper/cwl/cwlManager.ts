@@ -31,7 +31,7 @@ export class CwlManager {
         fs.writeFileSync(this.filePath, 'cwlVersion: v1.0' + os.EOL);
         fs.appendFileSync(this.filePath, 'class: CommandLineTool' + os.EOL);
         fs.appendFileSync(this.filePath, 'baseCommand: ' + executable + os.EOL);
-        fs.appendFileSync(this.filePath, 'stdout: logFile.txt' + os.EOL);
+        fs.appendFileSync(this.filePath, 'stdout: logs/logFile.txt' + os.EOL);
         fs.appendFileSync(this.filePath, 'requirements:' + os.EOL);
         fs.appendFileSync(this.filePath, '  DockerRequirement:' + os.EOL);
         fs.appendFileSync(this.filePath, '    dockerPull: ' + this.dockerImage + os.EOL);

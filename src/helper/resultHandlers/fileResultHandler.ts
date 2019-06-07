@@ -269,7 +269,7 @@ export class FileResultHandler implements IResultHandler {
                     file: {
                         "mime-type": "text/plain",
                         type: "log",
-                        url: IoHelper.getStaticResultUrlFull(process.outputFolder + "logFile.txt"),
+                        url: IoHelper.getStaticResultUrlFull(process.outputFolder + "logs/logFile.txt"),
                         name: "logFile.txt",
                         options: {
                             visualization: false
