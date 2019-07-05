@@ -191,6 +191,7 @@ export class FileResultHandler implements IResultHandler {
                             case 'Directory':
                                 //IoHelper.createFolder(process.outputFolder + key);
                                 for (var listing of element.listing) {
+                                    //TODO: If listing.basename is a directory just skip it
                                     if (!listing.basename.startsWith('.') && !listing.basename.startsWith('data') && !listing.basename.startsWith('log')) {
                                         let file = {
                                             'file': {
