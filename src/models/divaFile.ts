@@ -104,6 +104,31 @@ export class DivaFile {
         item.url = "http://" + nconf.get("server:rootUrl") + "/files/" + collection + "/original/" + filename;
         return item;
     }
+
+
+    /**
+     * Creates a DivaFile with a relative path to the files store directory
+     *
+     * @static
+     * @param {string} inputPath the relative input path
+     * @returns {DivaFile} the created DivaFile
+     * @memberof DivaFile
+     */
+    static CreateFileRelative(inputPath: string): DivaFile {
+        let item = new DivaFile();
+        let elements = inputPath.split("/");
+        let filename = elements.pop();
+        item.collection = elements[0];
+        elements = elements.slice(1);
+        let subPath = elements.join("/");
+        item.filename = filename;
+        item.extension = filename.split(".").pop();
+        item.path = nconf.get("paths:filesPath") + path.sep + item.collection + path.sep + "original" + path.sep + subPath + path.sep + filename;
+        item.identifier = inputPath; 
+        item.url = "http://" + nconf.get("server:rootUrl") + "/files/" + item.collection + "/original/" + subPath + "/" + filename;
+        return item;
+    }
+
     /**
      * Create a DivaFile from a full path to the file
      * 
@@ -149,128 +174,128 @@ export class DivaFile {
      * Getter folder
      * @return {string}
      */
-	public get folder(): string {
-		return this._folder;
-	}
+    public get folder(): string {
+        return this._folder;
+    }
 
     /**
      * Getter filename
      * @return {string}
      */
-	public get filename(): string {
-		return this._filename;
-	}
+    public get filename(): string {
+        return this._filename;
+    }
 
     /**
      * Getter identifier
      * @return {string}
      */
-	public get identifier(): string {
-		return this._identifier;
-	}
+    public get identifier(): string {
+        return this._identifier;
+    }
 
     /**
      * Getter collection
      * @return {string}
      */
-	public get collection(): string {
-		return this._collection;
-	}
+    public get collection(): string {
+        return this._collection;
+    }
 
     /**
      * Getter extension
      * @return {string}
      */
-	public get extension(): string {
-		return this._extension;
-	}
+    public get extension(): string {
+        return this._extension;
+    }
 
     /**
      * Getter path
      * @return {string}
      */
-	public get path(): string {
-		return this._path;
-	}
+    public get path(): string {
+        return this._path;
+    }
 
     /**
      * Getter url
      * @return {string}
      */
-	public get url(): string {
-		return this._url;
-	}
+    public get url(): string {
+        return this._url;
+    }
 
     /**
      * Getter options
      * @return {any}
      */
-	public get options(): any {
-		return this._options;
-	}
+    public get options(): any {
+        return this._options;
+    }
 
     /**
      * Setter folder
      * @param {string} value
      */
-	public set folder(value: string) {
-		this._folder = value;
-	}
+    public set folder(value: string) {
+        this._folder = value;
+    }
 
     /**
      * Setter filename
      * @param {string} value
      */
-	public set filename(value: string) {
-		this._filename = value;
-	}
+    public set filename(value: string) {
+        this._filename = value;
+    }
 
     /**
      * Setter identifier
      * @param {string} value
      */
-	public set identifier(value: string) {
-		this._identifier = value;
-	}
+    public set identifier(value: string) {
+        this._identifier = value;
+    }
 
     /**
      * Setter collection
      * @param {string} value
      */
-	public set collection(value: string) {
-		this._collection = value;
-	}
+    public set collection(value: string) {
+        this._collection = value;
+    }
 
     /**
      * Setter extension
      * @param {string} value
      */
-	public set extension(value: string) {
-		this._extension = value;
-	}
+    public set extension(value: string) {
+        this._extension = value;
+    }
 
     /**
      * Setter path
      * @param {string} value
      */
-	public set path(value: string) {
-		this._path = value;
-	}
+    public set path(value: string) {
+        this._path = value;
+    }
 
     /**
      * Setter url
      * @param {string} value
      */
-	public set url(value: string) {
-		this._url = value;
-	}
+    public set url(value: string) {
+        this._url = value;
+    }
 
     /**
      * Setter options
      * @param {any} value
      */
-	public set options(value: any) {
-		this._options = value;
-	}
+    public set options(value: any) {
+        this._options = value;
+    }
 
 }

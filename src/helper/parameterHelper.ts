@@ -234,7 +234,6 @@ export class ParameterHelper {
                         switch (Object.keys(found[key])[0]) {
                             case "file":
                                 let values = value.split("/");
-                                let collection = values[values.length - 2];
                                 let filename = values[values.length - 1];
                                 //check if the mime-type is matching
                                 if (!found[key].file.options.mimeTypes.allowed.includes(mime.getType(filename))) {
@@ -245,7 +244,7 @@ export class ParameterHelper {
                                 //perform lookup to get the correct file path, create the correct data item out of it
                                 if (!this.isPathAbsolute(value)) {
                                     //use relative file path to look up with collection / filename
-                                    data[key] = DivaFile.CreateFile(collection, filename);
+                                    data[key] = DivaFile.CreateFileRelative(value);
                                 } else {
                                     //use absolute path (used only when testing a method)
                                     data[key] = DivaFile.CreateFileFullTest(value);
