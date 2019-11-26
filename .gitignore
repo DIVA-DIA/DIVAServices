@@ -50,3 +50,4 @@ docs/
 *.code-workspace
 
 .DS_Store
+package-lock.json
