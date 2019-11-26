@@ -276,6 +276,18 @@ export class WorkflowManager {
     }
 
     /**
+     * delete the workflows information file
+     * 
+     * @static
+     * @param {string} folder the folder of the file
+     * 
+     * @memberof AlgorithmManagement
+     */
+    static deleteInfoFile(folder: string): void {
+        IoHelper.deleteFile(folder + path.sep + "info.json");
+    }
+
+    /**
      * Update the root information file with the new added workflow
      *
      * @returns {Promise<void>} Resolves once the file is updated
@@ -564,5 +576,9 @@ export class WorkflowManager {
         } catch (error) {
             throw error;
         }
+    }
+
+    public getStatus() : any {
+        return AlgorithmManagement.getStatusByRoute(this.route)
     }
 }
