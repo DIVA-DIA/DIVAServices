@@ -144,11 +144,12 @@ router.post("/algorithms/:identifier/exceptions/:jobId", function (req: express.
 });
 
 /**
- * delete an existing algorithm
+ * delete an existing algorithm based on the identifier
  */
 router.delete("/algorithms/:identifier", async function (req: express.Request, res: express.Response) {
     //set algorithm status to deleted
     let serviceInfo = await ServicesInfoHelper.getInfoByIdentifier(req.params.identifier);
+    //serviceInfo.path gives the path to the executable with version (baseRoute just to the root folder {without version})
     AlgorithmManagement.updateStatus(req.params.identifier, "delete", null, null);
     //remove /route/info.json file
     AlgorithmManagement.deleteInfoFile(nconf.get("paths:jsonPath") + serviceInfo.path);
@@ -158,6 +159,25 @@ router.delete("/algorithms/:identifier", async function (req: express.Request, r
         Logger.log("info", "deleted algorithm " + req.params.identifier, "AlgorithmRouter");
     }).catch(error => {
         sendError(res, new DivaError("Could not delete image " + req.params.identifier, 500, "ImageDeletionError"));
+    });
+});
+
+/**
+ * delete an existing algorithm based on the resource path
+ */
+router.delete("/:category/:methodName/:version", async function (req: express.Request, res: express.Response) {
+    //set algorithm status to deleted
+    let serviceInfo = await ServicesInfoHelper.getInfoByPath("/" + req.params.category + "/" + req.params.methodName + "/" + req.params.version);
+    
+    AlgorithmManagement.updateStatus(serviceInfo.identifier, "delete", null, null);
+    //remove /route/info.json file
+    AlgorithmManagement.deleteInfoFile(nconf.get("paths:jsonPath") + serviceInfo.path);
+    AlgorithmManagement.removeFromRootInfoFile(serviceInfo.path);
+    await DockerManagement.removeImage(serviceInfo.imageName).then(data => {
+        res.status(200).send();
+        Logger.log("info", "deleted algorithm " + serviceInfo.identifier, "AlgorithmRouter");
+    }).catch(error => {
+        sendError(res, new DivaError("Could not delete image " + serviceInfo.identifier, 500, "ImageDeletionError"));
     });
 });
 
