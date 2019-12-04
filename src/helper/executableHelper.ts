@@ -126,6 +126,10 @@ export class ExecutableHelper extends EventEmitter {
                 let serviceInfo = await ServicesInfoHelper.getInfoByPath(req.originalUrl);
                 let collection = new Collection();
                 let methodInfo = await IoHelper.readFile(nconf.get("paths:jsonPath") + req.originalUrl + path.sep + "info.json");
+                //check if there was a filter parameter given. If not add one with value *
+                if(req.body.parameters.hasOwnProperty("filter")){
+                    req.body.parameters.filter = "*";
+                }
                 collection.outputs = methodInfo.output;
                 collection.method = serviceInfo.service;
                 collection.name = RandomWordGenerator.generateRandomWord();
