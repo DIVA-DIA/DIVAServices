@@ -233,7 +233,7 @@ export class WorkflowManager {
             version: this.version,
             status: {
                 statusCode: 200,
-                statusMessage: "This workflow is available"
+                statusMessage: "Started Workflow Creation"
             },
             statistics: {
                 runtime: -1,
@@ -579,6 +579,7 @@ export class WorkflowManager {
     }
 
     public getStatus() : any {
-        return AlgorithmManagement.getStatusByRoute(this.route)
+        let route = this.route.split('/').slice(0,-1).join('/');
+        return AlgorithmManagement.getStatusByRoute('/' +  route)
     }
 }
