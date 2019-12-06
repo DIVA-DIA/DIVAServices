@@ -201,7 +201,7 @@ export class IoHelper {
     static deleteFolder(folder: string): Promise<void> {
         //TODO Check if fs.rmdir can be used as replacement
         return new Promise<void>((resolve, reject) => {
-            rmdir(folder, function () {
+            fs.remove(folder, function () {
                 Logger.log("info", "successfully deleted folder: " + folder, "IoHelper");
                 resolve();
             });

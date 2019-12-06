@@ -41,7 +41,7 @@ router.post("/workflows", async function (req: express.Request, res: express.Res
 });
 
 /**
- * Get the status of a workflow
+ * Execute a workflow
  */
 router.post("/workflows/*", async function (req: express.Request, res: express.Response) {
     try {
@@ -61,12 +61,15 @@ router.post("/workflows/*", async function (req: express.Request, res: express.R
 router.delete("/workflows/:workflowName/:version", async function (req: express.Request, res: express.Response) {
     // We use the already existing static methods of the algorithmMangager (could be don in a generic util class)
     let serviceInfo = await ServicesInfoHelper.getInfoByPath("/workflows/" + req.params.workflowName + "/" + req.params.version);
-    //set algorithm status to deleted
-    AlgorithmManagement.updateStatus(serviceInfo.identifier, "delete", null, null);
+    //selete algo info from the service file
+    AlgorithmManagement.removeFromServiceInfoFileByidentifier(serviceInfo.identifier);
+
+    //remove the whole worlflows/workflowName folder and also the log/workflow/workflowName and json/workflows/workflowName folder
+    WorkflowManager.delteWorkflowFolders(req.params.workflowName);
     //remove /route/info.json file
     AlgorithmManagement.deleteInfoFile(nconf.get("paths:jsonPath") + "/workflows" + serviceInfo.path);
     AlgorithmManagement.removeFromRootInfoFile(serviceInfo.path);
-    send200(res, {});
+    send200(res, {"message": "Workflow " + req.params.workflowName + " sucessfully deleted!"});
     Logger.log("info", "deleted workflow " + req.params.workflowName, "WorkflowRouter");
 });
 

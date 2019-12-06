@@ -182,7 +182,7 @@ export class AlgorithmManagement {
         await IoHelper.deleteFolder(nconf.get("paths:executablePath") + path.sep + route);
         let identifier = AlgorithmManagement.createIdentifier();
         AlgorithmManagement.removeFromRootInfoFile("/" + route);
-        AlgorithmManagement.removeFromServiceInfoFile("/" + baseroute);
+        AlgorithmManagement.removeFromServiceInfoFileByRoute("/" + baseroute);
         return AlgorithmManagement.createAlgorithm(req, route, identifier, imageName, version, baseroute);
     }
     /**
@@ -492,9 +492,24 @@ export class AlgorithmManagement {
      * 
      * @memberof AlgorithmManagement
      */
-    static async removeFromServiceInfoFile(route: string) {
+    static async removeFromServiceInfoFileByRoute(route: string) {
         let fileContent = IoHelper.readFile(nconf.get("paths:servicesInfoFile"));
         _.remove(fileContent.services, { "baseRoute": route });
+        await IoHelper.saveFile(nconf.get("paths:servicesInfoFile"), fileContent, "utf8");
+        ServicesInfoHelper.reload();
+    }
+
+    /**
+     * remove algorithm information from the service information file
+     * 
+     * @static
+     * @param {string} identifier identifier to remove
+     * 
+     * @memberof AlgorithmManagement
+     */
+    static async removeFromServiceInfoFileByidentifier(identifier: string) {
+        let fileContent = IoHelper.readFile(nconf.get("paths:servicesInfoFile"));
+        _.remove(fileContent.services, { "identifier": identifier });
         await IoHelper.saveFile(nconf.get("paths:servicesInfoFile"), fileContent, "utf8");
         ServicesInfoHelper.reload();
     }
@@ -690,7 +705,7 @@ export class AlgorithmManagement {
     static async updateServicesFile(algorithm: any, identifier: string, route: string, imageName: string, version: number, baseRoute: string): Promise<void> {
         ServicesInfoHelper.reload();
         if (this.getStatusByIdentifier(identifier) != null || this.getStatusByRoute(baseRoute) != null) {
-            this.removeFromServiceInfoFile(baseRoute);
+            this.removeFromServiceInfoFileByRoute(baseRoute);
         }
         if ((this.getStatusByIdentifier(identifier) == null) && (this.getStatusByRoute(baseRoute) == null)) {
             let newContent = _.cloneDeep(ServicesInfoHelper.fileContent);

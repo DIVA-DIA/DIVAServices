@@ -281,10 +281,30 @@ export class WorkflowManager {
      * @static
      * @param {string} folder the folder of the file
      * 
-     * @memberof AlgorithmManagement
+     * @memberof WorkflowManager
      */
     static deleteInfoFile(folder: string): void {
-        IoHelper.deleteFile(folder + path.sep + "info.json");
+        IoHelper.deleteFile(path.join(folder, path.sep, "info.json"));
+    }
+
+    /** 
+    * deletes the folders of a given workflow
+    * This includes: - the /workflow/workflowName folder
+    *                - the /json/workflows/workflowName folder
+    *                - the /logs/workflows/workflowName folder
+    * 
+    * @static
+    * @param {string} workflowName the name of the workflow
+    * 
+    * @memberof WorkflowManager
+    */
+    static async delteWorkflowFolders(workflowName: string){
+        // /workflows folder
+        await IoHelper.deleteFolder(path.join(nconf.get("paths:workflowsPath"), workflowName));
+        // /json/workflows folder
+        await IoHelper.deleteFolder(path.join(nconf.get("paths:jsonPath"), "workflows", workflowName));
+        // /logs/workflows folder
+        await IoHelper.deleteFolder(path.join(nconf.get("paths:logPath"), "workflows", workflowName));
     }
 
     /**
