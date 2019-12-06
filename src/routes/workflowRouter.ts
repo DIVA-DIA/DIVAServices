@@ -1,13 +1,14 @@
 
 import * as express from 'express';
 import * as nconf from "nconf";
+import { isNullOrUndefined } from 'util';
+import { ServicesInfoHelper } from "../helper/servicesInfoHelper";
+import { Logger } from "../logging/logger";
+import { AlgorithmManagement } from "../management/algorithmManagement";
 import { DivaError } from '../models/divaError';
 import { QueueHandler } from '../processingQueue/queueHandler';
 import { WorkflowManager } from '../workflows/workflowManager';
 import { PostHandler } from './postHandler';
-import { Logger } from "../logging/logger";
-import { ServicesInfoHelper } from "../helper/servicesInfoHelper";
-import { AlgorithmManagement } from "../management/algorithmManagement";
 
 "use strict";
 
@@ -20,21 +21,32 @@ router.post("/workflows", async function (req: express.Request, res: express.Res
     try {
         //schema to check against
         let workflowManager = new WorkflowManager(req.body);
-        await workflowManager.parseWorkflow();
-        await workflowManager.createServicesEntry();
-        await workflowManager.createInfoFile();
-        await workflowManager.updateRootFile();
+        //check if workflow with same name already exists
+        let status = await workflowManager.getStatus();
+        if (!isNullOrUndefined(status)) {
+            switch (status.status.statusCode) {
+                case 200:
+                    sendError(res, new DivaError("A workflow with the same name / type combination already exists. Please change the name of the workflow", 500, "WorkflowDuplication"));
+                    break;       
+            }
+        } else {
+ 
+            await workflowManager.parseWorkflow();
+            await workflowManager.createServicesEntry();
+            await workflowManager.createInfoFile();
+            await workflowManager.updateRootFile();
 
-        //create the status 
-        // let status = await workflowManager.getStatus();
+            //create the status 
+            status = await workflowManager.getStatus();
 
-        // let response = {
-        //     statusCode: status.status.statusCode,
-        //     identifier: status.identifier,
-        //     statusMessage: status.statusMessage
-        // };
+            let response = {
+                statusCode: status.status.statusCode,
+                identifier: status.identifier,
+                statusMessage: status.status.statusMessage
+            };
 
-        send200(res, {});
+            send200(res, response);
+        }
     } catch (error) {
         sendError(res, error);
     }
